@@ -2,6 +2,7 @@ import json
 import subprocess
 import sys
 import time
+import urllib.parse
 from pathlib import Path
 
 try:
@@ -40,7 +41,6 @@ def _require_pyautogui():
 
 def _paste_text(text: str) -> None:
     _require_pyautogui()
-
     os_name = _get_os()
     paste_hotkey = ("command", "v") if os_name == "mac" else ("ctrl", "v")
 
@@ -62,6 +62,7 @@ def _clear_and_paste(text: str) -> None:
     pyautogui.press("delete")
     time.sleep(0.1)
     _paste_text(text)
+
 
 def _open_app(app_name: str) -> bool:
     _require_pyautogui()
@@ -110,7 +111,7 @@ def _open_app(app_name: str) -> bool:
             return launched
 
     except Exception as e:
-        print(f"[SendMessage] ⚠️ Could not open {app_name}: {e}")
+        print(f"[SendMessage] Could not open {app_name}: {e}")
         return False
 
 
@@ -118,11 +119,12 @@ def _open_browser_url(url: str) -> bool:
     import webbrowser
     try:
         webbrowser.open(url)
-        time.sleep(4.0) 
+        time.sleep(3.5) 
         return True
     except Exception as e:
-        print(f"[SendMessage] ⚠️ Could not open browser: {e}")
+        print(f"[SendMessage] Could not open browser: {e}")
         return False
+
 
 def _search_in_app(query: str) -> None:
     _require_pyautogui()
@@ -133,6 +135,7 @@ def _search_in_app(query: str) -> None:
     time.sleep(0.5)
     _clear_and_paste(query)
     time.sleep(1.0)
+
 
 def _desktop_send(app_name: str, receiver: str, message: str) -> str:
     if not _open_app(app_name):
@@ -149,11 +152,58 @@ def _desktop_send(app_name: str, receiver: str, message: str) -> str:
     time.sleep(0.3)
     return f"Message sent to {receiver} via {app_name}."
 
+
+# ── Platforms ─────────────────────────────────────────────────────────────
+
 def _send_whatsapp(receiver: str, message: str) -> str:
+    # If receiver looks like a phone number, use WhatsApp Web / API directly
+    clean_num = "".join(filter(str.isdigit, receiver))
+    if len(clean_num) >= 10:
+        encoded_msg = urllib.parse.quote(message)
+        url = f"https://web.whatsapp.com/send?phone={clean_num}&text={encoded_msg}"
+        if _open_browser_url(url):
+            time.sleep(4.0)
+            pyautogui.press("enter")
+            return f"WhatsApp message prepared for {receiver}."
     return _desktop_send("WhatsApp", receiver, message)
+
 
 def _send_telegram(receiver: str, message: str) -> str:
     return _desktop_send("Telegram", receiver, message)
+
+
+def _send_teams(receiver: str, message: str) -> str:
+    # Open Microsoft Teams desktop app or web
+    return _desktop_send("Microsoft Teams", receiver, message)
+
+
+def _send_linkedin(receiver: str, message: str) -> str:
+    encoded_query = urllib.parse.quote(receiver)
+    url = f"https://www.linkedin.com/search/results/people/?keywords={encoded_query}"
+    _open_browser_url(url)
+    return f"Opened LinkedIn search for {receiver}. Message prepared: '{message}'"
+
+
+def _send_gmail(receiver: str, message: str) -> str:
+    encoded_to = urllib.parse.quote(receiver)
+    encoded_body = urllib.parse.quote(message)
+    encoded_sub = urllib.parse.quote("Message from NAGI 45")
+    url = f"https://mail.google.com/mail/?view=cm&fs=1&to={encoded_to}&su={encoded_sub}&body={encoded_body}"
+    if _open_browser_url(url):
+        return f"Opened Gmail draft compose window to {receiver} with your message."
+    return "Could not open Gmail."
+
+
+def _send_outlook(receiver: str, message: str) -> str:
+    encoded_to = urllib.parse.quote(receiver)
+    encoded_body = urllib.parse.quote(message)
+    encoded_sub = urllib.parse.quote("Message from NAGI 45")
+    # Standard mailto or web Outlook
+    url = f"https://outlook.live.com/mail/0/deeplink/compose?to={encoded_to}&subject={encoded_sub}&body={encoded_body}"
+    if _open_browser_url(url):
+        return f"Opened Outlook draft compose window to {receiver} with your message."
+    return "Could not open Outlook."
+
 
 def _send_signal(receiver: str, message: str) -> str:
     return _desktop_send("Signal", receiver, message)
@@ -165,56 +215,48 @@ def _send_discord(receiver: str, message: str) -> str:
 
 def _send_instagram(receiver: str, message: str) -> str:
     _require_pyautogui()
-
     if not _open_browser_url("https://www.instagram.com/direct/new/"):
         return "Could not open Instagram in browser."
-
     _paste_text(receiver)
     time.sleep(1.5)
-
     pyautogui.press("down")
     time.sleep(0.3)
     pyautogui.press("enter")   
     time.sleep(0.4)
-
     for _ in range(4):
         pyautogui.press("tab")
         time.sleep(0.15)
     pyautogui.press("enter")
     time.sleep(2.0)
-
     _paste_text(message)
     time.sleep(0.2)
     pyautogui.press("enter")
-    time.sleep(0.3)
-
     return f"Message sent to {receiver} via Instagram."
 
 
 def _send_messenger(receiver: str, message: str) -> str:
     _require_pyautogui()
-
     if not _open_browser_url("https://www.messenger.com/"):
         return "Could not open Messenger in browser."
-
-
     _search_in_app(receiver)
     time.sleep(0.5)
     pyautogui.press("down")
     time.sleep(0.3)
     pyautogui.press("enter")
     time.sleep(1.0)
-
     _paste_text(message)
     time.sleep(0.2)
     pyautogui.press("enter")
-    time.sleep(0.3)
-
     return f"Message sent to {receiver} via Messenger."
+
 
 _PLATFORM_MAP = [
     ({"whatsapp", "wp", "wapp"},              _send_whatsapp),
     ({"telegram", "tg"},                      _send_telegram),
+    ({"teams", "microsoft teams", "ms teams"},_send_teams),
+    ({"linkedin", "linked in"},                _send_linkedin),
+    ({"gmail", "google mail"},                 _send_gmail),
+    ({"outlook", "ms outlook", "email", "mail"}, _send_outlook),
     ({"instagram", "ig", "insta"},            _send_instagram),
     ({"signal"},                               _send_signal),
     ({"discord"},                              _send_discord),
@@ -249,7 +291,7 @@ def send_message(
         return "PyAutoGUI is not installed — cannot control the desktop."
 
     preview = message_text[:50] + ("…" if len(message_text) > 50 else "")
-    print(f"[SendMessage] 📨 {platform} → {receiver}: {preview}")
+    print(f"[NAGI 45] 📨 {platform} → {receiver}: {preview}")
     if player:
         player.write_log(f"[msg] {platform} → {receiver}")
 
@@ -259,7 +301,7 @@ def send_message(
     except Exception as e:
         result = f"Could not send message: {e}"
 
-    print(f"[SendMessage] {'✅' if 'sent' in result.lower() else '❌'} {result}")
+    print(f"[NAGI 45] {'✅' if 'sent' in result.lower() or 'opened' in result.lower() else '❌'} {result}")
     if player:
         player.write_log(f"[msg] {result}")
 
