@@ -1,3 +1,4 @@
+from typing import Any
 #youtube_video.py
 import json
 import re
@@ -13,7 +14,7 @@ try:
     import pyautogui
     _PYAUTOGUI = True
 except ImportError:
-    pyautogui = None
+    pyautogui: Any = None
     _PYAUTOGUI = False
 
 try:

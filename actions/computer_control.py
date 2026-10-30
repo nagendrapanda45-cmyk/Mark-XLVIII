@@ -15,20 +15,21 @@ import time
 import random
 from pathlib import Path
 
+from typing import Any
 try:
     import pyautogui
     pyautogui.FAILSAFE = True
     pyautogui.PAUSE    = 0.05
     _PYAUTOGUI = True
 except ImportError:
-    pyautogui = None
+    pyautogui: Any = None
     _PYAUTOGUI = False
 
 try:
     import pyperclip
     _PYPERCLIP = True
 except ImportError:
-    pyperclip = None
+    pyperclip: Any = None
     _PYPERCLIP = False
 
 def _base_dir() -> Path:

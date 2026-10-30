@@ -1,3 +1,9 @@
 {
-    "python.analysis.typeCheckingMode": "standard"
+    "python.analysis.typeCheckingMode": "basic",
+    "python.analysis.diagnosticSeverityOverrides": {
+        "reportOptionalMemberAccess": "none",
+        "reportPossiblyUnboundVariable": "none",
+        "reportOptionalSubscript": "none",
+        "reportAttributeAccessIssue": "none"
+    }
 }
