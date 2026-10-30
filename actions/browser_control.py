@@ -563,7 +563,7 @@ class _BrowserSession:
         base = _engines.get(engine.lower(), _engines["google"])
         return await self.go_to(base + query.replace(" ", "+"))
 
-    async def click(self, selector: str = None, text: str = None) -> str:
+    async def click(self, selector: str | None = None, text: str | None = None) -> str:
         page = await self._get_page()
         try:
             if text:
@@ -578,7 +578,7 @@ class _BrowserSession:
         except Exception as e:
             return f"Click error: {e}"
 
-    async def type_text(self, selector: str = None, text: str = "",
+    async def type_text(self, selector: str | None = None, text: str = "",
                         clear_first: bool = True) -> str:
         page = await self._get_page()
         try:
@@ -697,7 +697,7 @@ class _BrowserSession:
             return "Tab closed."
         return "No active tab to close."
 
-    async def screenshot(self, path: str = None) -> str:
+    async def screenshot(self, path: str | None = None) -> str:
         page = await self._get_page()
         try:
             save_path = path or str(Path.home() / "Desktop" / "jarvis_screenshot.png")
@@ -802,7 +802,7 @@ class _SessionRegistry:
 _registry = _SessionRegistry()
 
 def browser_control(
-    parameters:    dict = None,
+    parameters:    dict | None = None,
     response=None,
     player=None,
     session_memory=None,
