@@ -1028,9 +1028,17 @@ class JarvisLive:
         # ── Phase 1: instant greeting — one simple sentence ──────────────────
         lang_clause = f" Respond in {lang}." if lang else ""
         name_clause = f" Address the user as {name}." if name else ""
+        now_hr = datetime.now().hour
+        if 5 <= now_hr < 12:
+            period = "Good morning"
+        elif 12 <= now_hr < 17:
+            period = "Good afternoon"
+        else:
+            period = "Good evening"
+
         p1 = (
-            f"Greet the user, mention it is {time_str}, and say you are fetching today's news headlines now. "
-            f"One short sentence only. Do not call any tools.{lang_clause}{name_clause}"
+            f"Speak clearly in English. Say: '{period} sir, I am NAGI 45. Which language would you prefer to converse in?' "
+            f"Only ask this greeting and language question. Do not fetch news and do not call any tools."
         )
 
         await self.session.send_client_content(
@@ -1046,7 +1054,7 @@ class JarvisLive:
             except Exception as e:
                 print(f"[Briefing] Phase 2 error: {e}")
                 self.ui.write_log(f"SYS: Briefing news phase failed: {e}")
-        asyncio.create_task(_guarded_news())
+        # asyncio.create_task(_guarded_news())
 
     async def _briefing_news_phase(self, lang: str) -> None:
         """
