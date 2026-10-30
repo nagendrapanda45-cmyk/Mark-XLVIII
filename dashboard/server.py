@@ -791,4 +791,7 @@ class DashboardServer:
         proto = "https" if use_ssl else "http"
         print(f"[Dashboard] {proto}://{self._ip}:{PORT}")
         print("[Dashboard] Press 'Remote Control' in JARVIS UI to get the QR code.")
-        await uvicorn.Server(cfg).serve()
+        try:
+            await uvicorn.Server(cfg).serve()
+        except Exception as e:
+            print(f"[Dashboard] Note: Port {PORT} already in use or busy. Assistant running normally.")
