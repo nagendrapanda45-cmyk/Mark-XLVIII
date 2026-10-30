@@ -510,7 +510,8 @@ def shutdown_computer():
     else:
         subprocess.run(["systemctl", "poweroff"], capture_output=True)
 
-ACTION_MAP: dict[str, callable] = {
+from typing import Callable
+ACTION_MAP: dict[str, Callable] = {
     "volume_up":           volume_up,
     "volume_down":         volume_down,
     "mute":                volume_mute,
@@ -604,14 +605,15 @@ Rules:
 
     try:
         resp = _client.models.generate_content(model="gemini-2.5-flash-lite", contents=prompt)
-        text = re.sub(r"```(?:json)?", "", resp.text).strip().rstrip("`").strip()
+        raw_resp = resp.text or ""
+        text = re.sub(r"```(?:json)?", "", raw_resp).strip().rstrip("`").strip()
         return json.loads(text)
     except Exception as e:
         print(f"[Settings] Intent detection failed: {e}")
         return {"action": description.lower().replace(" ", "_"), "value": None}
 
 def computer_settings(
-    parameters: dict = None,
+    parameters: dict | None = None,
     response=None,
     player=None,
     session_memory=None,
