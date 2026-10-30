@@ -442,7 +442,33 @@ class HudCanvas(QWidget):
                 Qt.AspectRatioMode.KeepAspectRatio,
                 Qt.TransformationMode.SmoothTransformation,
             )
-            p.drawPixmap(int(cx - fsz / 2), int(cy - fsz / 2), scaled)
+            face_left = int(cx - fsz / 2)
+            face_top  = int(cy - fsz / 2)
+            p.drawPixmap(face_left, face_top, scaled)
+
+            # Animated mouth & speech visualizer when NAGI 45 is speaking
+            if self.speaking:
+                mouth_cx = cx
+                mouth_cy = cy + int(fsz * 0.08)  # aligned to lower mouth area
+                mouth_w  = int(fsz * 0.22)
+                # Sound-reactive mouth aperture
+                osc = math.sin(self._tick * 0.45)
+                mouth_open = int(abs(osc) * (fsz * 0.075) + 3)
+                
+                # Glowing holographic speech resonance around mouth
+                glow_pen = QPen(QColor(0, 245, 255, int(160 + 80 * abs(osc))), 2)
+                p.setPen(glow_pen)
+                p.setBrush(QBrush(QColor(0, 15, 30, int(190 + 50 * abs(osc)))))
+                p.drawEllipse(QRectF(mouth_cx - mouth_w/2, mouth_cy - mouth_open/2, mouth_w, mouth_open))
+
+                # Holographic acoustic speech bar waves over mouth
+                p.setPen(QPen(QColor(0, 255, 230, 230), 2))
+                bars = 5
+                step = mouth_w / (bars + 1)
+                for b in range(bars):
+                    bx = mouth_cx - mouth_w/2 + step * (b + 1)
+                    bh = abs(math.sin(self._tick * 0.5 + b * 1.2)) * (mouth_open * 1.2 + 4)
+                    p.drawLine(QPointF(bx, mouth_cy - bh/2), QPointF(bx, mouth_cy + bh/2))
         else:
             orb_r = int(fw * 0.27 * self._scale)
             oc    = (200, 0, 50) if self.muted else (0, 60, 110)
@@ -1888,7 +1914,7 @@ class MainWindow(QMainWindow):
             l.setStyleSheet(f"color: {color}; background: transparent;")
             return l
 
-        lay.addWidget(_badge("MARK XLVIII", C.PRI_DIM))
+        lay.addWidget(_badge("NAGI 45", C.PRI_DIM))
         lay.addStretch()
 
         mid = QVBoxLayout(); mid.setSpacing(1)
