@@ -1,0 +1,9 @@
+.env
+config/api_keys.json
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.venv/
+memory/*.json
+!memory/.gitkeep
