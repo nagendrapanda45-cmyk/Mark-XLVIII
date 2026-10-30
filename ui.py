@@ -1680,7 +1680,31 @@ class MainWindow(QMainWindow):
             if _os == "Windows":
                 pythonw  = python.parent / "pythonw.exe"
                 target   = str(pythonw if pythonw.exists() else python)
-                lnk      = str(desktop / "J.A.R.V.I.S.lnk")
+                
+                # Check real desktop directory or fallback to current workspace
+                desk_candidates = [
+                    desktop,
+                    Path(os.environ.get("ONEDRIVE", "")) / "Desktop",
+                    Path(os.environ.get("USERPROFILE", "")) / "Desktop",
+                    script.parent
+                ]
+                desk_target_dir = None
+                for d in desk_candidates:
+                    if d and str(d).strip():
+                        try:
+                            d.mkdir(parents=True, exist_ok=True)
+                            test_file = d / ".test_write"
+                            test_file.touch()
+                            test_file.unlink()
+                            desk_target_dir = d
+                            break
+                        except Exception:
+                            continue
+                
+                if not desk_target_dir:
+                    desk_target_dir = script.parent
+
+                lnk      = str(desk_target_dir / "NAGI 45.lnk")
                 icon_loc = str(ico_path) if ico_path.exists() else f"{target},0"
                 self._create_lnk_windows(lnk, target, str(script),
                                          str(script.parent), icon_loc)
