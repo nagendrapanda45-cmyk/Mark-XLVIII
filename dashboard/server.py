@@ -37,7 +37,19 @@ except Exception:
 
 BASE_DIR    = Path(__file__).resolve().parent.parent
 STATIC_DIR  = Path(__file__).parent / "static"
-PORT        = 8000
+import socket
+
+def _get_free_port(preferred: int) -> int:
+    for p in [preferred, 8080, 8090, 8888, 9000, 9090]:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            try:
+                s.bind(("0.0.0.0", p))
+                return p
+            except OSError:
+                continue
+    return preferred
+
+PORT = _get_free_port(8000)
 MAX_UPLOAD_MB = 500
 
 
@@ -764,7 +776,10 @@ class DashboardServer:
             ssl_keyfile=str(ssl_key), ssl_certfile=str(ssl_cert),
         )
         print(f"[Dashboard] Manual entry:  {self._ip}:{PORT + 1}  (type in browser, accept cert once)")
-        await uvicorn.Server(cfg).serve()
+        try:
+            await uvicorn.Server(cfg).serve()
+        except Exception:
+            pass
 
     async def serve(self) -> None:
         if not _DEPS_OK:
