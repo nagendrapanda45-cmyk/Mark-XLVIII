@@ -13,6 +13,7 @@ try:
     import pyautogui
     _PYAUTOGUI = True
 except ImportError:
+    pyautogui = None
     _PYAUTOGUI = False
 
 _OS = platform.system()  # "Windows" | "Darwin" | "Linux"

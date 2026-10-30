@@ -11,12 +11,14 @@ try:
     pyautogui.PAUSE    = 0.06
     _PYAUTOGUI = True
 except ImportError:
+    pyautogui = None
     _PYAUTOGUI = False
 
 try:
     import pyperclip
     _PYPERCLIP = True
 except ImportError:
+    pyperclip = None
     _PYPERCLIP = False
 
 def _base_dir() -> Path:

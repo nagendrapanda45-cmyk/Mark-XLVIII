@@ -13,12 +13,14 @@ try:
     pyautogui.PAUSE    = 0.05
     _PYAUTOGUI = True
 except ImportError:
+    pyautogui = None
     _PYAUTOGUI = False
 
 try:
     import pyperclip
     _PYPERCLIP = True
 except ImportError:
+    pyperclip = None
     _PYPERCLIP = False
 
 _OS = platform.system()  # "Windows" | "Darwin" | "Linux"
