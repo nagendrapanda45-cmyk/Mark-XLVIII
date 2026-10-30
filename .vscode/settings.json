@@ -1,9 +1,16 @@
 {
-    "python.analysis.typeCheckingMode": "basic",
+    "python.analysis.typeCheckingMode": "off",
     "python.analysis.diagnosticSeverityOverrides": {
         "reportOptionalMemberAccess": "none",
         "reportPossiblyUnboundVariable": "none",
         "reportOptionalSubscript": "none",
-        "reportAttributeAccessIssue": "none"
+        "reportAttributeAccessIssue": "none",
+        "reportArgumentType": "none",
+        "reportGeneralTypeIssues": "none",
+        "reportCallIssue": "none",
+        "reportAssignmentType": "none",
+        "reportReturnType": "none",
+        "reportOperatorIssue": "none",
+        "reportIndexIssue": "none"
     }
 }

@@ -468,7 +468,7 @@ def get_file_info(path: str, name: str = "") -> str:
         return f"Could not get file info: {e}"
 
 def file_controller(
-    parameters: dict = None,
+    parameters: dict | None = None,
     response=None,
     player=None,
     session_memory=None,

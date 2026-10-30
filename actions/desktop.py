@@ -413,7 +413,7 @@ def get_desktop_stats() -> str:
     )
 
 def desktop_control(
-    parameters: dict = None,
+    parameters: dict | None = None,
     response=None,
     player=None,
     session_memory=None,

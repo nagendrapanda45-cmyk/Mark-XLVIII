@@ -75,7 +75,7 @@ def _file_size_str(path: Path) -> str:
     if size < 1024**3:     return f"{size/1024**2:.1f} MB"
     return f"{size/1024**3:.1f} GB"
 
-def _output_path(src: Path, suffix: str, new_ext: str = None) -> Path:
+def _output_path(src: Path, suffix: str, new_ext: str | None = None) -> Path:
     ext  = new_ext or src.suffix
     name = f"{src.stem}_{suffix}{ext}"
     return src.parent / name
